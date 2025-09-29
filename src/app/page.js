@@ -1,103 +1,322 @@
-import Image from "next/image";
+"use client";
+import { useRef, useEffect } from "react";
+import { useState } from "react";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
+import IconButton from "@mui/material/IconButton";
+import BackspaceIcon from "@mui/icons-material/Backspace";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [result, setResult] = useState("0");
+  const displayRef = useRef(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  useEffect(() => {
+    if (displayRef.current) {
+      displayRef.current.scrollTop = displayRef.current.scrollHeight;
+    }
+  }, [result]);
+
+  const handleDigitClick = (value) => {
+    const newResult = result + value;
+    if (newResult.startsWith("0") && newResult.length > 1) {
+      setResult(newResult.substring(1));
+    } else {
+      setResult(newResult);
+    }
+  };
+
+  const handleEqualClick = () => {
+    setResult(eval(result).toString(10));
+  };
+  // try {
+  //     const calculationString = result.replaceAll('\n', '');
+  //     const evalResult = new Function('return ' + calculationString)();
+  //     setResult(evalResult.toString());
+  //   } catch (error) {
+  //     setResult("Error");
+  //   }
+  // };
+
+  //   const handleOperandClick = (value) => {
+  //   if (result === '0' && value === '-') {
+  //     setResult('-');
+  //     return;
+  //   }
+  //   if (result === '0') {
+  //     return;
+  //   }
+
+  //   setResult((prevResult) => {
+  //     const trimmedResult = prevResult.trim();
+  //     const lastChar = trimmedResult.slice(-1);
+
+  //     if (['+', '-', '*', '/'].includes(lastChar)) {
+  //       return trimmedResult.slice(0, -1)+ '\n' + value ;
+  //     } else {
+  //       return trimmedResult + '\n' + value;
+  //     }
+  //   });
+  // };
+
+  const handleOperandClick = (value) => {
+    if (result === "0" && value === "-") {
+      setResult("-");
+      return;
+    }
+    if (result === "0") {
+      return;
+    }
+
+    const lastChar = result.slice(-1);
+    if (lastChar >= "0" && lastChar <= "9") {
+      setResult(result + value);
+    } else {
+      setResult(result.slice(0, -1) + value);
+    }
+  };
+
+  const handleBackspace = () => {
+    const newResult = result;
+    if (newResult.length > 1) {
+      setResult(newResult.slice(0, -1));
+    } else {
+      setResult(0);
+    }
+  };
+
+  const handleClearClick = () => {
+    setResult((value) => {
+      const lastNewline = value.lastIndexOf("\n");
+
+      if (lastNewline !== -1) {
+        const newResult = value.slice(0, lastNewline);
+        return newResult === "" ? "0" : newResult;
+      } else {
+        return "0";
+      }
+    });
+  };
+
+  const handlePercentClick = () => {
+    try {
+      const currentValue = eval(result);
+      const percentValue = currentValue / 100;
+      setResult(percentValue.toString());
+    } catch (error) {
+      setResult("Error");
+    }
+  };
+
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      sx={{ minHeight: "100vh" }}
+    >
+      <Stack direction="column" spacing={2} sx={{ width: 300 }}>
+        <Paper
+          ref={displayRef}
+          elevation={3}
+          sx={{
+            padding: 2,
+            textAlign: "right",
+            backgroundColor: "#696969",
+            color: "#f000000",
+            overflow: "auto",
+            overflowY: "auto",
+            minHeight: 50,
+            height: "7rem",
+          }}
+        >
+          <Box sx={{ justifyContent: "flex-end", width: "100%" }}>
+            <Typography
+              variant="h4"
+              align="right"
+              fontFamily="monospace"
+              fontWeight="bold"
+              overflow-wrap="break-word"
+              width="100%"
+              whiteSpace="pre-wrap"
+              sx={{
+                overflowWrap: "break-word",
+                width: "100%",
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {" "}
+              {result}{" "}
+            </Typography>
+          </Box>
+        </Paper>
+        <Stack direction="row" spacing={2}>
+          <Button
+            variant="outlined"
+            sx={{
+              backgroundColor: "#ff5810",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#f57c00",
+              },
+            }}
+            onClick={() => setResult("0")}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            AC
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              backgroundColor: "#ff9810",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#f57c00",
+              },
+            }}
+            onClick={() => handleOperandClick("/")}
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+            /
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              backgroundColor: "#ff9800",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#f57c00",
+              },
+            }}
+            onClick={() => handleOperandClick("*")}
+          >
+            *
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              backgroundColor: "#ff9800",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#f57c00",
+              },
+            }}
+            onClick={() => handleClearClick()}
+          >
+            C
+          </Button>
+        </Stack>
+
+        <Stack direction="row" spacing={2} sx={{ justifyContent: "center" }}>
+          <Button variant="outlined" onClick={() => handleDigitClick("1")}>
+            1
+          </Button>
+          <Button variant="outlined" onClick={() => handleDigitClick("2")}>
+            2
+          </Button>
+          <Button variant="outlined" onClick={() => handleDigitClick("3")}>
+            3
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              backgroundColor: "#ff9800",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#f57c00",
+              },
+            }}
+            onClick={() => handlePercentClick("%")}
+          >
+            %
+          </Button>
+        </Stack>
+
+        <Stack direction="row" spacing={2} sx={{ justifyContent: "center" }}>
+          <Button variant="outlined" onClick={() => handleDigitClick("4")}>
+            4
+          </Button>
+          <Button variant="outlined" onClick={() => handleDigitClick("5")}>
+            5
+          </Button>
+          <Button variant="outlined" onClick={() => handleDigitClick("6")}>
+            6
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              backgroundColor: "#ff9800",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#f57c00",
+              },
+            }}
+            onClick={() => handleOperandClick("-")}
+          >
+            -
+          </Button>
+        </Stack>
+
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ justifyContent: "space-between" }}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <Button variant="outlined" onClick={() => handleDigitClick("7")}>
+            7
+          </Button>
+          <Button variant="outlined" onClick={() => handleDigitClick("8")}>
+            8
+          </Button>
+          <Button variant="outlined" onClick={() => handleDigitClick("9")}>
+            9
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              backgroundColor: "#ff9800",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#f57c00",
+              },
+            }}
+            onClick={() => handleOperandClick("+")}
+          >
+            +
+          </Button>
+        </Stack>
+
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ justifyContent: "space-between" }}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <Button variant="outlined" onClick={() => handleDigitClick("0")}>
+            0
+          </Button>
+          <Button variant="outlined" onClick={() => handleDigitClick(".")}>
+            .
+          </Button>
+
+          <IconButton color="primary" onClick={handleBackspace}>
+            <BackspaceIcon />
+          </IconButton>
+
+          <Button
+            variant="outlined"
+            sx={{
+              backgroundColor: "#ff9800",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#f57c00",
+              },
+            }}
+            onClick={handleEqualClick}
+          >
+            =
+          </Button>
+        </Stack>
+      </Stack>
+    </Box>
   );
 }
